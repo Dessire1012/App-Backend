@@ -52,44 +52,6 @@ const {
 // Routes
 app.use("/user", userRouter);
 
-// Authentication routes
-app.post("/auth/google/token", async (req, res) => {
-  const { token } = req.body;
-  try {
-    const payload = verifyGoogleToken(token);
-
-    const existingUser = await getCredentials(payload.email);
-
-    if (existingUser) {
-      console.log("Existing user found:", existingUser);
-      res.json(existingUser);
-    } else {
-      const salt = crypto.randomBytes(16).toString("base64");
-      const password = crypto.randomBytes(16).toString("base64");
-      const encryptedPassword = crypto
-        .pbkdf2Sync(password, salt, 100000, 64, "sha512")
-        .toString("base64");
-
-      const newUser = {
-        name: payload.name,
-        email: payload.email,
-        photo: payload.picture,
-        encryptedPassword,
-        salt,
-      };
-
-      const userId = await registerUser(newUser);
-      newUser.user_id = userId;
-
-      console.log("New user registered with ID:", userId);
-      res.json(newUser);
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(400).send("Invalid token");
-  }
-});
-
 // Profile route
 app.get("/profile", (req, res) => {
   if (req.isAuthenticated()) {
