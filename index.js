@@ -28,17 +28,16 @@ app.use(
 
 app.use(bodyParser.json());
 app.use(cookieParser());
+
 app.use(
   session({
     secret: "your-secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      secure: true,
-      sameSite: "None",
-    },
+    cookie: { secure: true, sameSite: "Lax" },
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -129,21 +128,10 @@ app.get(
   (req, res) => {
     const userId = req.user.user_id;
     console.log("Setting cookie with userId:", userId);
-
-    // Clear the cookie before setting a new one
-    res.clearCookie("userId", {
-      domain: ".vanguardchat.netlify.app",
-      path: "/",
-      secure: true,
-      sameSite: "Lax",
-    });
-
-    // Set the new cookie
     res.cookie("userId", userId, {
       httpOnly: false,
-      secure: true,
+      secure: false,
       sameSite: "Lax",
-      domain: ".vanguardchat.netlify.app",
     });
 
     console.log("Cookies being set:", res.getHeader("Set-Cookie"));
