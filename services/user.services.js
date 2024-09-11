@@ -37,7 +37,7 @@ const registerUser = async (user) => {
     const [userId] = await knex("users").insert(userData);
     return userId;
   } catch (error) {
-    console.error("Error registering user:", error);
+    console.error("Error registering user:", error.message, error.stack);
     throw error;
   }
 };

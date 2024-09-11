@@ -34,13 +34,18 @@ async function register(req, res) {
         .pbkdf2Sync(password, salt, 30000, 64, "sha256")
         .toString("base64");
 
-      const [newUserId] = await registerUser({
-        id,
+      const user = {
         name,
         email,
         encryptedPassword,
         salt,
-      });
+      };
+
+      if (id) {
+        user.id = id;
+      }
+
+      const [newUserId] = await registerUser(user);
 
       res.send({
         success: true,
@@ -48,6 +53,7 @@ async function register(req, res) {
       });
     }
   } catch (e) {
+    console.error(e);
     res.status(HTTPCodes.INTERNAL_SERVER_ERROR).send({
       error: "There is already a user with this email",
     });
