@@ -42,12 +42,6 @@ app.use(
 
 // Import routes and services
 const userRouter = require("./routes/user.routes");
-const {
-  registerUser,
-  getCredentials,
-  getAllUsers,
-  getCredentialsById,
-} = require("./services/user.services");
 
 // Routes
 app.use("/user", userRouter);
