@@ -143,6 +143,6 @@ app.get("/", (req, res) => {
 });
 
 // Start the server
-app.listen(3001, () => {
-  console.log("Server started on http://localhost:3001");
+app.listen(8080, () => {
+  console.log("Server started on http://localhost:8080");
 });
