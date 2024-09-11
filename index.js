@@ -131,6 +131,8 @@ app.get(
     console.log("Setting cookie with userId:", userId);
 
     res.json({ userId });
+
+    res.redirect("https://vanguardchat.netlify.app/chatbot");
   }
 );
 
