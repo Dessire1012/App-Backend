@@ -11,6 +11,7 @@ const {
 } = require("../services/user.services");
 
 async function register(req, res) {
+  console.log("Request body:", req.body);
   const { email, password, name, id } = req.body;
   try {
     const errorMessages = [];
