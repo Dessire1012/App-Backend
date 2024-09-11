@@ -37,6 +37,7 @@ async function register(req, res) {
       const user = {
         name,
         email,
+        photo,
         encryptedPassword,
         salt,
       };
