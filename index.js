@@ -130,7 +130,7 @@ app.get(
     console.log("Setting cookie with userId:", userId);
     res.cookie("userId", userId, {
       httpOnly: false,
-      secure: false,
+      secure: true,
       sameSite: "Lax",
     });
 
