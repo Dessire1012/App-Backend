@@ -70,15 +70,25 @@ async function register(req, res) {
 }
 
 async function login(req, res) {
-  const { email, password } = req.body;
+  const { email, password, id } = req.body;
   try {
     const errorMessages = [];
-    if (!isEmail(email)) {
-      errorMessages.push("Email is not valid.");
-    }
 
-    if (!isPassword(password)) {
-      errorMessages.push("Password is not valid.");
+    if (email && password) {
+      if (!isEmail(email)) {
+        errorMessages.push("Email is not valid.");
+      }
+      if (!isPassword(password)) {
+        errorMessages.push("Password is not valid.");
+      }
+    } else if (id && email) {
+      if (!isEmail(email)) {
+        errorMessages.push("Email is not valid.");
+      }
+    } else {
+      errorMessages.push(
+        "You must provide either email and password or id and email."
+      );
     }
 
     if (errorMessages.length) {
@@ -93,33 +103,41 @@ async function login(req, res) {
       });
     }
 
-    const encryptedPassword = crypto
-      .pbkdf2Sync(password, credentials.salt, 30000, 64, "sha256")
-      .toString("base64");
+    if (email && password) {
+      const encryptedPassword = crypto
+        .pbkdf2Sync(password, credentials.salt, 30000, 64, "sha256")
+        .toString("base64");
 
-    if (encryptedPassword === credentials.password) {
-      const accessToken = jwt.sign(
-        { email },
-        process.env.TOKENKEY || "AS4D5FF6G78NHCV7X6X5C",
-        { expiresIn: "1d" }
-      );
-
-      const refreshToken = jwt.sign(
-        { email },
-        process.env.TOKENKEY || "AS4D5FF6G78NHCV7X6X5C",
-        { expiresIn: "1m" }
-      );
-
-      res.send({
-        accessToken,
-        refreshToken,
-        id: credentials.user_id,
-      });
-    } else {
-      res.status(HTTPCodes.UNAUTHORIZED).send({
-        error: "Password incorrect",
-      });
+      if (encryptedPassword !== credentials.password) {
+        return res.status(HTTPCodes.UNAUTHORIZED).send({
+          error: "Password incorrect",
+        });
+      }
+    } else if (id && email) {
+      if (id !== credentials.user_id) {
+        return res.status(HTTPCodes.UNAUTHORIZED).send({
+          error: "ID incorrect",
+        });
+      }
     }
+
+    const accessToken = jwt.sign(
+      { email },
+      process.env.TOKENKEY || "AS4D5FF6G78NHCV7X6X5C",
+      { expiresIn: "1d" }
+    );
+
+    const refreshToken = jwt.sign(
+      { email },
+      process.env.TOKENKEY || "AS4D5FF6G78NHCV7X6X5C",
+      { expiresIn: "1m" }
+    );
+
+    res.send({
+      accessToken,
+      refreshToken,
+      id: credentials.user_id,
+    });
   } catch (e) {
     console.error("Login error:", e);
     res.status(HTTPCodes.INTERNAL_SERVER_ERROR).send({
