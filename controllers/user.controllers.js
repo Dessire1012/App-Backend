@@ -46,9 +46,10 @@ async function register(req, res) {
         user.photo = req.body.photo;
       }
 
-      if (user_id) {
+      if (req.body.user_id) {
+        console.log("User ID:", user_id);
         user.user_id = parseFloat(user_id, 10);
-        console.log("ID:", user.id);
+        console.log("ID:", user_id);
       } else {
         user.id = parseFloat((Math.random() * 1000000).toFixed(2));
       }
