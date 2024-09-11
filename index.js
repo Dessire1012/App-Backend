@@ -19,13 +19,7 @@ const swaggerDocument = YAML.parse(file);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Middleware setup
-app.use(
-  cors({
-    origin: "https://vanguardchat.netlify.app",
-    credentials: true,
-  })
-);
-
+app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser());
 
