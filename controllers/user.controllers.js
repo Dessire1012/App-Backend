@@ -82,15 +82,6 @@ async function login(req, res) {
       if (!isPassword(password)) {
         errorMessages.push("Password is not valid.");
       }
-    } else if (id && email) {
-      if (!isEmail(email)) {
-        errorMessages.push("Email is not valid.");
-      }
-      id = BigInt(id);
-    } else {
-      errorMessages.push(
-        "You must provide either email and password or id and email."
-      );
     }
 
     if (errorMessages.length) {
@@ -116,7 +107,9 @@ async function login(req, res) {
         });
       }
     } else if (id && email) {
-      if (id !== credentials.user_id) {
+      const convertedId = BigInt(id);
+      const userId = BigInt(credentials.user_id);
+      if (convertedId !== userId) {
         return res.status(HTTPCodes.UNAUTHORIZED).send({
           error: "ID incorrect",
         });
