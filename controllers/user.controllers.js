@@ -48,10 +48,10 @@ async function register(req, res) {
 
       if (req.body.user_id) {
         console.log("User ID:", req.body.user_id);
-        user.user_id = parseInt(req.body.user_id, 10);
-        console.log("ID:", user.user_id);
+        user.id = BigInt(req.body.user_id);
+        console.log("ID:", user.id.toString());
       } else {
-        user.user_id = parseInt((Math.random() * 1000000).toFixed(0), 10);
+        user.id = parseInt((Math.random() * 1000000).toFixed(0), 10);
       }
 
       const newUserId = await registerUser(user);
