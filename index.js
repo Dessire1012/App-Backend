@@ -51,7 +51,8 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL:
+        "https://app-ffb84f79-a617-43e4-b3ef-d4e15dbc138f.cleverapps.io/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -121,7 +122,7 @@ app.get(
       secure: false,
       sameSite: "Lax",
     });
-    res.redirect("http://localhost:8080/chatbot");
+    res.redirect("https://vanguardchat.netlify.app/chatbot");
   }
 );
 
