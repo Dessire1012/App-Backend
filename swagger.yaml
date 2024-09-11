@@ -1,0 +1,100 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: User API
+paths:
+  /register:
+    post:
+      tags:
+        - User
+      summary: Register a new user
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: Successful operation
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              newUserId:
+                type: integer
+        400:
+          description: Bad request
+          schema:
+            type: object
+            properties:
+              error:
+                type: array
+                items:
+                  type: string
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              detail:
+                type: string
+  /login:
+    post:
+      tags:
+        - User
+      summary: User login
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: Successful operation
+          schema:
+            type: object
+            properties:
+              accessToken:
+                type: string
+              refreshToken:
+                type: string
+              name:
+                type: string
+        400:
+          description: Bad request
+          schema:
+            type: object
+            properties:
+              error:
+                type: array
+                items:
+                  type: string
+        401:
+          description: Unauthorized
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
