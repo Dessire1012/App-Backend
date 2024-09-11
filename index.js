@@ -130,15 +130,19 @@ app.get(
     const userId = req.user.user_id;
     console.log("Setting cookie with userId:", userId);
 
+    // Clear the cookie before setting a new one
     res.clearCookie("userId", {
       domain: ".vanguardchat.netlify.app",
       path: "/",
+      secure: true,
+      sameSite: "Lax",
     });
 
+    // Set the new cookie
     res.cookie("userId", userId, {
       httpOnly: false,
       secure: true,
-      sameSite: "None",
+      sameSite: "Lax",
       domain: ".vanguardchat.netlify.app",
     });
 
