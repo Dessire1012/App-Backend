@@ -70,6 +70,7 @@ async function register(req, res) {
 }
 
 async function login(req, res) {
+  console.log("Request body:", req.body);
   const { email, password, id } = req.body;
   try {
     const errorMessages = [];
@@ -85,6 +86,7 @@ async function login(req, res) {
       if (!isEmail(email)) {
         errorMessages.push("Email is not valid.");
       }
+      id = BigInt(id);
     } else {
       errorMessages.push(
         "You must provide either email and password or id and email."
