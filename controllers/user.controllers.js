@@ -47,7 +47,8 @@ async function register(req, res) {
       }
 
       if (id) {
-        user.id = parseFloat(id);
+        user.id = parseFloat(id, 10);
+        console.log("ID:", user.id);
       } else {
         user.id = parseFloat((Math.random() * 1000000).toFixed(2));
       }
