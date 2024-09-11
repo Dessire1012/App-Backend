@@ -131,15 +131,15 @@ app.get(
     console.log("Setting cookie with userId:", userId);
 
     res.clearCookie("userId", {
-      domain: "vanguardchat.netlify.app",
+      domain: ".vanguardchat.netlify.app",
       path: "/",
     });
 
     res.cookie("userId", userId, {
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
       sameSite: "None",
-      domain: "vanguardchat.netlify.app",
+      domain: ".vanguardchat.netlify.app",
     });
 
     console.log("Cookies being set:", res.getHeader("Set-Cookie"));
