@@ -47,7 +47,7 @@ async function register(req, res) {
         user.id = parseFloat((Math.random() * 1000000).toFixed(2));
       }
 
-      const [newUserId] = await registerUser(user);
+      const newUserId = await registerUser(user);
 
       res.send({
         success: true,
