@@ -47,11 +47,11 @@ async function register(req, res) {
       }
 
       if (req.body.user_id) {
-        console.log("User ID:", user_id);
-        user.user_id = parseFloat(user_id, 10);
-        console.log("ID:", user_id);
+        console.log("User ID:", req.body.user_id);
+        user.user_id = parseInt(req.body.user_id, 10);
+        console.log("ID:", user.user_id);
       } else {
-        user.id = parseFloat((Math.random() * 1000000).toFixed(2));
+        user.user_id = parseInt((Math.random() * 1000000).toFixed(0), 10);
       }
 
       const newUserId = await registerUser(user);
