@@ -1,11 +1,11 @@
 const knex = require("knex")({
   client: "mysql2",
   connection: {
-    host: process.env.HOST,
-    port: process.env.PORT,
-    user: process.env.USER,
+    host: "bspr39k37qq9zdaaum1t-mysql.services.clever-cloud.com",
+    port: 3306,
+    user: "u43kg4hjo8zgygpg",
     password: process.env.PASSWORD,
-    database: process.env.DATABASE,
+    database: "bspr39k37qq9zdaaum1t",
   },
 });
 
