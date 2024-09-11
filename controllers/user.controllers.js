@@ -42,7 +42,7 @@ async function register(req, res) {
       };
 
       if (id) {
-        user.id = id;
+        user.id = parseFloat(id);
       }
 
       const [newUserId] = await registerUser(user);
