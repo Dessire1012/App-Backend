@@ -37,10 +37,13 @@ async function register(req, res) {
       const user = {
         name,
         email,
-        photo,
         encryptedPassword,
         salt,
       };
+
+      if (req.body.photo) {
+        user.photo = req.body.photo;
+      }
 
       if (id) {
         user.id = parseFloat(id);
