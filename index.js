@@ -36,8 +36,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true, // Asegúrate de usar HTTPS
-      sameSite: "None", // Permitir cookies en solicitudes cross-site
+      secure: true,
+      sameSite: "None",
     },
   })
 );
@@ -130,16 +130,19 @@ app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
-    const userId = req.user.user_id;
-    console.log("Setting cookie with userId:", userId);
-    res.cookie("userId", userId, {
-      httpOnly: false,
-      secure: true, // Solo habilitar en HTTPS
-      sameSite: "None", // Permitir el envío de cookies en solicitudes cross-site
-      domain: ".vanguardchat.netlify.app", // Configura el dominio correcto
-    });
+    if (req.user && req.user.user_id) {
+      const userId = req.user.user_id;
+      console.log("Setting cookie with userId:", userId);
+      res.cookie("userId", userId, {
+        httpOnly: false,
+        secure: true,
+        sameSite: "None",
+      });
 
-    console.log("Cookies being set:", res.getHeader("Set-Cookie"));
+      console.log("Cookies being set:", res.getHeader("Set-Cookie"));
+    } else {
+      console.log("User ID not found in request.");
+    }
 
     // Redirect to chatbot page
     res.redirect("https://vanguardchat.netlify.app/chatbot");
