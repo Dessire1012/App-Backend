@@ -1,9 +1,7 @@
 const cors = require("cors");
 const express = require("express");
 const bodyParser = require("body-parser");
-const passport = require("passport");
 const session = require("express-session");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const crypto = require("crypto");
 const fs = require("fs");
 const YAML = require("yaml");
@@ -42,9 +40,6 @@ app.use(
   })
 );
 
-app.use(passport.initialize());
-app.use(passport.session());
-
 // Import routes and services
 const userRouter = require("./routes/user.routes");
 const {
@@ -57,97 +52,43 @@ const {
 // Routes
 app.use("/user", userRouter);
 
-// Passport configuration
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL:
-        "https://app-ffb84f79-a617-43e4-b3ef-d4e15dbc138f.cleverapps.io/auth/google/callback",
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        const existingUser = await getCredentials(profile.emails[0].value);
-
-        if (existingUser) {
-          console.log("Existing user found:", existingUser);
-          return done(null, existingUser);
-        } else {
-          const salt = crypto.randomBytes(16).toString("base64");
-          const password = crypto.randomBytes(16).toString("base64");
-          const encryptedPassword = crypto
-            .pbkdf2Sync(password, salt, 100000, 64, "sha512")
-            .toString("base64");
-
-          const newUser = {
-            name: profile.displayName,
-            email: profile.emails[0].value,
-            photo: String(profile.photos[0].value),
-            encryptedPassword,
-            salt,
-          };
-
-          const userId = await registerUser(newUser);
-          newUser.user_id = userId;
-
-          console.log("New user registered with ID:", userId);
-          return done(null, newUser);
-        }
-      } catch (err) {
-        return done(err, null);
-      }
-    }
-  )
-);
-
-passport.serializeUser((user, done) => {
-  console.log("Serializing user:", user);
-  done(null, user.user_id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await getCredentialsById(id);
-    if (user) {
-      console.log("Deserializing user with ID:", id);
-      done(null, user);
-    } else {
-      done(new Error("User not found"), null);
-    }
-  } catch (err) {
-    done(err, null);
-  }
-});
-
 // Authentication routes
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+app.post("/auth/google/token", async (req, res) => {
+  const { token } = req.body;
+  try {
+    const payload = verifyGoogleToken(token);
 
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/" }),
-  (req, res) => {
-    if (req.user && req.user.user_id) {
-      const userId = req.user.user_id;
-      console.log("Setting cookie with userId:", userId);
-      res.cookie("userId", userId, {
-        httpOnly: false,
-        secure: true,
-        sameSite: "None",
-      });
+    const existingUser = await getCredentials(payload.email);
 
-      console.log("Cookies being set:", res.getHeader("Set-Cookie"));
+    if (existingUser) {
+      console.log("Existing user found:", existingUser);
+      res.json(existingUser);
     } else {
-      console.log("User ID not found in request.");
-    }
+      const salt = crypto.randomBytes(16).toString("base64");
+      const password = crypto.randomBytes(16).toString("base64");
+      const encryptedPassword = crypto
+        .pbkdf2Sync(password, salt, 100000, 64, "sha512")
+        .toString("base64");
 
-    // Redirect to chatbot page
-    res.redirect("https://vanguardchat.netlify.app/chatbot");
+      const newUser = {
+        name: payload.name,
+        email: payload.email,
+        photo: payload.picture,
+        encryptedPassword,
+        salt,
+      };
+
+      const userId = await registerUser(newUser);
+      newUser.user_id = userId;
+
+      console.log("New user registered with ID:", userId);
+      res.json(newUser);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(400).send("Invalid token");
   }
-);
+});
 
 // Profile route
 app.get("/profile", (req, res) => {
