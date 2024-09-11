@@ -121,7 +121,7 @@ app.get(
       secure: false,
       sameSite: "Lax",
     });
-    res.redirect("http://localhost:3000/chatbot");
+    res.redirect("http://localhost:8080/chatbot");
   }
 );
 
