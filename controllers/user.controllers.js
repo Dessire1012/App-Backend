@@ -11,7 +11,7 @@ const {
 } = require("../services/user.services");
 
 async function register(req, res) {
-  const { email, password, name } = req.body;
+  const { email, password, name, id } = req.body;
   try {
     const errorMessages = [];
     if (!isEmail(email)) {
@@ -35,6 +35,7 @@ async function register(req, res) {
         .toString("base64");
 
       const [newUserId] = await registerUser({
+        id,
         name,
         email,
         encryptedPassword,

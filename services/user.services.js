@@ -22,13 +22,19 @@ testConnection();
 
 const registerUser = async (user) => {
   try {
-    const [userId] = await knex("users").insert({
+    const userData = {
       name: user.name,
       email: user.email,
       photo: user.photo,
       password: user.encryptedPassword,
       salt: user.salt,
-    });
+    };
+
+    if (user.id) {
+      userData.user_id = user.id;
+    }
+
+    const [userId] = await knex("users").insert(userData);
     return userId;
   } catch (error) {
     console.error("Error registering user:", error);
