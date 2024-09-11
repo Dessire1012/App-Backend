@@ -12,7 +12,7 @@ const {
 
 async function register(req, res) {
   console.log("Request body:", req.body);
-  const { email, password, name, id } = req.body;
+  const { email, password, name, user_id } = req.body;
   try {
     const errorMessages = [];
     if (!isEmail(email)) {
@@ -46,8 +46,8 @@ async function register(req, res) {
         user.photo = req.body.photo;
       }
 
-      if (id) {
-        user.id = parseFloat(id, 10);
+      if (user_id) {
+        user.user_id = parseFloat(user_id, 10);
         console.log("ID:", user.id);
       } else {
         user.id = parseFloat((Math.random() * 1000000).toFixed(2));
