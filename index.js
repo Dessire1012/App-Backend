@@ -19,15 +19,21 @@ const swaggerDocument = YAML.parse(file);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Middleware setup
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://vanguardchat.netlify.app",
+    credentials: true, // Necesario para permitir el envío de cookies
+  })
+);
+
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(
   session({
-    secret: "your-secret-key", // Cambia esto por una clave secreta en producción
+    secret: "your-secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, sameSite: "Lax" }, // Cambia `secure` a `true` si usas HTTPS
+    cookie: { secure: true, sameSite: "None" },
   })
 );
 app.use(passport.initialize());
@@ -112,7 +118,7 @@ app.get(
 );
 
 app.get(
-  "https://app-ffb84f79-a617-43e4-b3ef-d4e15dbc138f.cleverapps.io/auth/google/callback",
+  "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
     const userId = req.user.user_id;
