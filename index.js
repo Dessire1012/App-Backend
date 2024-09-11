@@ -112,7 +112,7 @@ app.get(
 );
 
 app.get(
-  "/auth/google/callback",
+  "https://app-ffb84f79-a617-43e4-b3ef-d4e15dbc138f.cleverapps.io/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
     const userId = req.user.user_id;
