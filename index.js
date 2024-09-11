@@ -142,6 +142,8 @@ app.get(
       domain: "vanguardchat.netlify.app",
     });
 
+    console.log("Cookies being set:", res.getHeader("Set-Cookie"));
+
     // Redirect to chatbot page
     res.redirect("https://vanguardchat.netlify.app/chatbot");
   }
