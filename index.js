@@ -68,6 +68,7 @@ passport.use(
         const existingUser = await getCredentials(profile.emails[0].value);
 
         if (existingUser) {
+          console.log("Existing user found:", existingUser);
           return done(null, existingUser);
         } else {
           const salt = crypto.randomBytes(16).toString("base64");
@@ -87,6 +88,7 @@ passport.use(
           const userId = await registerUser(newUser);
           newUser.user_id = userId;
 
+          console.log("New user registered with ID:", userId);
           return done(null, newUser);
         }
       } catch (err) {
@@ -105,6 +107,7 @@ passport.deserializeUser(async (id, done) => {
   try {
     const user = await getCredentialsById(id);
     if (user) {
+      console.log("Deserializing user with ID:", id);
       done(null, user);
     } else {
       done(new Error("User not found"), null);
@@ -126,16 +129,20 @@ app.get(
   (req, res) => {
     const userId = req.user.user_id;
     console.log("Setting cookie with userId:", userId);
+
     res.clearCookie("userId", {
       domain: "vanguardchat.netlify.app",
       path: "/",
     });
+
     res.cookie("userId", userId, {
       httpOnly: true,
       secure: true,
       sameSite: "None",
       domain: "vanguardchat.netlify.app",
     });
+
+    // Redirect to chatbot page
     res.redirect("https://vanguardchat.netlify.app/chatbot");
   }
 );
