@@ -19,16 +19,26 @@ const swaggerDocument = YAML.parse(file);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Middleware setup
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://vanguardchat.netlify.app",
+    credentials: true,
+  })
+);
+
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+// Configuración de sesión
 app.use(
   session({
     secret: "your-secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: true, sameSite: "Lax" },
+    cookie: {
+      secure: true, // Asegúrate de usar HTTPS
+      sameSite: "None", // Permitir cookies en solicitudes cross-site
+    },
   })
 );
 
@@ -124,8 +134,9 @@ app.get(
     console.log("Setting cookie with userId:", userId);
     res.cookie("userId", userId, {
       httpOnly: false,
-      secure: true,
-      sameSite: "Lax",
+      secure: true, // Solo habilitar en HTTPS
+      sameSite: "None", // Permitir el envío de cookies en solicitudes cross-site
+      domain: ".vanguardchat.netlify.app", // Configura el dominio correcto
     });
 
     console.log("Cookies being set:", res.getHeader("Set-Cookie"));
