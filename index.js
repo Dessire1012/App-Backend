@@ -22,7 +22,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(
   cors({
     origin: "https://vanguardchat.netlify.app",
-    credentials: true, // Necesario para permitir el envío de cookies
+    credentials: true,
   })
 );
 
@@ -33,7 +33,10 @@ app.use(
     secret: "your-secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: true, sameSite: "Lax" },
+    cookie: {
+      secure: true,
+      sameSite: "None",
+    },
   })
 );
 app.use(passport.initialize());
@@ -123,10 +126,15 @@ app.get(
   (req, res) => {
     const userId = req.user.user_id;
     console.log("Setting cookie with userId:", userId);
+    res.clearCookie("userId", {
+      domain: "vanguardchat.netlify.app",
+      path: "/",
+    });
     res.cookie("userId", userId, {
-      httpOnly: false,
-      secure: false,
-      sameSite: "Lax",
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      domain: "vanguardchat.netlify.app",
     });
     res.redirect("https://vanguardchat.netlify.app/chatbot");
   }
