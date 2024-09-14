@@ -36,7 +36,6 @@ const registerUser = async (user) => {
       user_id: user.id,
       name: user.name,
       email: user.email,
-      photo: user.photo,
       password: user.encryptedPassword,
       salt: user.salt,
     };

@@ -42,10 +42,6 @@ async function register(req, res) {
         salt,
       };
 
-      if (req.body.photo) {
-        user.photo = req.body.photo;
-      }
-
       if (req.body.user_id) {
         console.log("User ID:", req.body.user_id);
         user.id = BigInt(req.body.user_id);
