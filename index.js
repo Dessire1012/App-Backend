@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 const crypto = require("crypto");
 const fs = require("fs");
+const axios = require("axios");
 const YAML = require("yaml");
 const swaggerUi = require("swagger-ui-express");
 const cookieParser = require("cookie-parser");
@@ -28,9 +29,11 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // Configuración de sesión
+const secret = crypto.randomBytes(64).toString("hex");
+
 app.use(
   session({
-    secret: "your-secret-key",
+    secret: secret,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -62,6 +65,21 @@ app.get("/profile", (req, res) => {
 app.get("/", (req, res) => {
   res.send("Welcome to the home page!");
 });
+
+app.post("/aws-function", async (req, res) => {
+  try {
+    const response = await axios.post(
+      "https://72hhxr5zme.execute-api.us-east-1.amazonaws.com/Test/comprehend",
+      req.body
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Error al acceder a la función de AWS:", error);
+    res.status(500).json({ error: "Error al acceder a la función de AWS" });
+  }
+});
+
+app.use(express.json());
 
 // Start the server
 app.listen(8080, () => {
