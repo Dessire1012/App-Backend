@@ -45,9 +45,11 @@ app.use(
 
 // Import routes and services
 const userRouter = require("./routes/user.routes");
+const agentRouter = require("./routes/agent.routes")
 
 // Routes
 app.use("/user", userRouter);
+app.use("/agent", agentRouter)
 
 // Profile route
 app.get("/profile", (req, res) => {
