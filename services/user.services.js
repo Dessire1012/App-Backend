@@ -46,7 +46,7 @@ const registerUser = async (user) => {
 const getCredentials = async (email) => {
   try {
     let credentials = await knex
-      .select("password", "salt", "user_id")
+      .select("password", "salt", "user_id", "vector")
       .from("users")
       .where("email", email)
       .first();

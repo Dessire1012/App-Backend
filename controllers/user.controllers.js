@@ -12,17 +12,14 @@ const {
 
 async function register(req, res) {
   console.log("Request body:", req.body);
-  const { email, password, name, user_id, vector } = req.body;
+  const { email, password, name, user_id } = req.body;
   try {
     const errorMessages = [];
-
-    if (!email) {
-      errorMessages.push("Email is required.");
-    } else if (!isEmail(email)) {
+    if (!isEmail(email)) {
       errorMessages.push("Email is not valid.");
     }
 
-    if (password && !isPassword(password)) {
+    if (!isPassword(password)) {
       errorMessages.push("Password is not valid.");
     }
 
@@ -31,41 +28,35 @@ async function register(req, res) {
     }
 
     if (errorMessages.length) {
-      return res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
-    }
-
-    const user = {
-      name,
-      email,
-      encryptedPassword: password
-        ? crypto
-            .pbkdf2Sync(
-              password,
-              crypto.randomBytes(128).toString("base64"),
-              30000,
-              64,
-              "sha256"
-            )
-            .toString("base64")
-        : null,
-      salt: password ? crypto.randomBytes(128).toString("base64") : null,
-      vector: vector || null,
-    };
-
-    if (user_id) {
-      console.log("User ID:", user_id);
-      user.id = BigInt(user_id);
-      console.log("ID:", user.id.toString());
+      res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
     } else {
-      user.id = parseInt((Math.random() * 1000000).toFixed(0), 10);
+      const salt = crypto.randomBytes(128).toString("base64");
+      const encryptedPassword = crypto
+        .pbkdf2Sync(password, salt, 30000, 64, "sha256")
+        .toString("base64");
+
+      const user = {
+        name,
+        email,
+        encryptedPassword,
+        salt,
+      };
+
+      if (req.body.user_id) {
+        console.log("User ID:", req.body.user_id);
+        user.id = BigInt(req.body.user_id);
+        console.log("ID:", user.id.toString());
+      } else {
+        user.id = parseInt((Math.random() * 1000000).toFixed(0), 10);
+      }
+
+      const newUserId = await registerUser(user);
+
+      res.send({
+        success: true,
+        newUserId,
+      });
     }
-
-    const newUserId = await registerUser(user);
-
-    res.send({
-      success: true,
-      newUserId,
-    });
   } catch (e) {
     console.error(e);
     res.status(HTTPCodes.INTERNAL_SERVER_ERROR).send({
@@ -94,20 +85,18 @@ async function login(req, res) {
     }
 
     let credentials;
-    if (id) {
-      credentials = await getCredentialsById(id);
-      if (!credentials) {
-        return res.status(HTTPCodes.UNAUTHORIZED).send({
-          error: "ID incorrect",
-        });
-      }
-    } else if (email) {
+    if (email && password) {
       credentials = await getCredentials(email);
-      if (!credentials) {
-        return res.status(HTTPCodes.UNAUTHORIZED).send({
-          error: "There isn't a user with this email",
-        });
-      }
+    } else if (id) {
+      credentials = await getCredentialsById(id);
+    } else if (email && vector) {
+      credentials = await getCredentialsByVector(email, vector);
+    }
+
+    if (!credentials) {
+      return res.status(HTTPCodes.UNAUTHORIZED).send({
+        error: "User not found",
+      });
     }
 
     if (email && password) {
@@ -120,16 +109,21 @@ async function login(req, res) {
           error: "Password incorrect",
         });
       }
-    } else if (vector) {
-      if (vector !== credentials.vector) {
+    } else if (id) {
+      const convertedId = BigInt(id);
+      const userId = BigInt(credentials.user_id);
+      if (convertedId !== userId) {
+        return res.status(HTTPCodes.UNAUTHORIZED).send({
+          error: "ID incorrect",
+        });
+      }
+    } else if (email && vector) {
+      // Assuming vector validation logic here
+      if (!isValidVector(vector, credentials.vector)) {
         return res.status(HTTPCodes.UNAUTHORIZED).send({
           error: "Vector incorrect",
         });
       }
-    } else if (!id) {
-      return res.status(HTTPCodes.BAD_REQUEST).send({
-        error: "Invalid login credentials",
-      });
     }
 
     const accessToken = jwt.sign(
