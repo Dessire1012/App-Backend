@@ -12,7 +12,7 @@ const {
 
 async function register(req, res) {
   console.log("Request body:", req.body);
-  const { email, password, name, user_id } = req.body;
+  const { email, password, name, user_id, vector } = req.body;
   try {
     const errorMessages = [];
     if (!isEmail(email)) {
