@@ -137,18 +137,9 @@ async function login(req, res) {
           error: "ID incorrect",
         });
       }
-    } else if (email && vector) {
-      const storedVector = JSON.parse(credentials.vector);
-
-      const distance = calculateEuclideanDistance(vector, storedVector);
-      const threshold = 0.6;
-
-      if (distance > threshold) {
-        return res.status(HTTPCodes.UNAUTHORIZED).send({
-          error: "Vector incorrect",
-        });
-      }
     }
+
+    const storedVector = JSON.parse(credentials.vector);
 
     const accessToken = jwt.sign(
       { email },
@@ -166,6 +157,7 @@ async function login(req, res) {
       accessToken,
       refreshToken,
       id: credentials.user_id,
+      vector: storedVector,
     });
   } catch (e) {
     console.error("Login error:", e);
@@ -173,17 +165,6 @@ async function login(req, res) {
       error: "There was an error processing your request",
     });
   }
-}
-
-function calculateEuclideanDistance(vector1, vector2) {
-  if (vector1.length !== vector2.length) {
-    throw new Error("Vectors must be of the same length");
-  }
-  let sum = 0;
-  for (let i = 0; i < vector1.length; i++) {
-    sum += Math.pow(vector1[i] - vector2[i], 2);
-  }
-  return Math.sqrt(sum);
 }
 
 async function getUsers(req, res) {
