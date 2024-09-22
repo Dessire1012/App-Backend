@@ -70,7 +70,7 @@ async function getAllUsers() {
 
 async function getCredentialsById(userId) {
   try {
-    console.log("Searching for user with ID:", userId);
+    console.log("Searching for the user with ID:", userId);
     const user = await knex("users").where({ user_id: userId }).first();
     console.log(
       "Query executed:",
