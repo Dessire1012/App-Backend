@@ -93,8 +93,9 @@ async function login(req, res) {
       return res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
     }
 
-    console.log("ID:", id);
-    const credentials = await getCredentials(id);
+    const convertedId = BigInt(id);
+    console.log("Converted ID:", convertedId);
+    const credentials = await getCredentials(convertedId);
 
     if (!credentials) {
       return res.status(HTTPCodes.UNAUTHORIZED).send({
