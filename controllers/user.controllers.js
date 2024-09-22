@@ -15,32 +15,44 @@ async function register(req, res) {
   const { email, password, name, user_id, vector } = req.body;
   try {
     const errorMessages = [];
-    if (!isEmail(email)) {
+
+    if (!email && !user_id) {
+      errorMessages.push("Either email or user_id is required.");
+    }
+
+    if (email && !isEmail(email)) {
       errorMessages.push("Email is not valid.");
     }
 
-    if (!isPassword(password)) {
+    if (password && !isPassword(password)) {
       errorMessages.push("Password is not valid.");
     }
 
-    if (!name || name.trim() === "") {
+    if (name && name.trim() === "") {
       errorMessages.push("Name is required.");
     }
 
     if (errorMessages.length) {
       res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
     } else {
-      const salt = crypto.randomBytes(128).toString("base64");
-      const encryptedPassword = crypto
-        .pbkdf2Sync(password, salt, 30000, 64, "sha256")
-        .toString("base64");
+      const user = {};
 
-      const user = {
-        name,
-        email,
-        encryptedPassword,
-        salt,
-      };
+      if (email) {
+        user.email = email;
+      }
+
+      if (password) {
+        const salt = crypto.randomBytes(128).toString("base64");
+        const encryptedPassword = crypto
+          .pbkdf2Sync(password, salt, 30000, 64, "sha256")
+          .toString("base64");
+        user.encryptedPassword = encryptedPassword;
+        user.salt = salt;
+      }
+
+      if (name) {
+        user.name = name;
+      }
 
       if (vector) {
         user.vector = vector;
