@@ -93,6 +93,8 @@ async function login(req, res) {
       credentials = await getCredentialsByVector(email, vector);
     }
 
+    console.log("Credentials:", credentials);
+
     if (!credentials) {
       return res.status(HTTPCodes.UNAUTHORIZED).send({
         error: "User not found",
