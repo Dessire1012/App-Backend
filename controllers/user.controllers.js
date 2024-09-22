@@ -34,45 +34,56 @@ async function register(req, res) {
 
     if (errorMessages.length) {
       res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
-    } else {
-      const user = {};
-
-      if (email) {
-        user.email = email;
-      }
-
-      if (password) {
-        const salt = crypto.randomBytes(128).toString("base64");
-        const encryptedPassword = crypto
-          .pbkdf2Sync(password, salt, 30000, 64, "sha256")
-          .toString("base64");
-        user.encryptedPassword = encryptedPassword;
-        user.salt = salt;
-      }
-
-      if (name) {
-        user.name = name;
-      }
-
-      if (vector) {
-        user.vector = vector;
-      }
-
-      if (user_id) {
-        console.log("User ID:", user_id);
-        user.id = BigInt(user_id);
-        console.log("ID:", user.id.toString());
-      } else {
-        user.id = parseInt((Math.random() * 1000000).toFixed(0), 10);
-      }
-
-      const newUserId = await registerUser(user);
-
-      res.send({
-        success: true,
-        newUserId,
-      });
+      return;
     }
+
+    if (email) {
+      const existingUser = await getCredentials(email);
+      if (existingUser) {
+        res
+          .status(HTTPCodes.BAD_REQUEST)
+          .send({ error: "Email already in use." });
+        return;
+      }
+    }
+
+    const user = {};
+
+    if (email) {
+      user.email = email;
+    }
+
+    if (password) {
+      const salt = crypto.randomBytes(128).toString("base64");
+      const encryptedPassword = crypto
+        .pbkdf2Sync(password, salt, 30000, 64, "sha256")
+        .toString("base64");
+      user.encryptedPassword = encryptedPassword;
+      user.salt = salt;
+    }
+
+    if (name) {
+      user.name = name;
+    }
+
+    if (vector) {
+      user.vector = vector;
+    }
+
+    if (user_id) {
+      console.log("User ID:", user_id);
+      user.id = BigInt(user_id);
+      console.log("ID:", user.id.toString());
+    } else {
+      user.id = parseInt((Math.random() * 1000000).toFixed(0), 10);
+    }
+
+    const newUserId = await registerUser(user);
+
+    res.send({
+      success: true,
+      newUserId,
+    });
   } catch (e) {
     console.error(e);
     res.status(HTTPCodes.INTERNAL_SERVER_ERROR).send({
