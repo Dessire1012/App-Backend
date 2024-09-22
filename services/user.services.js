@@ -43,14 +43,13 @@ const registerUser = async (user) => {
   }
 };
 
-const getCredentials = async (email) => {
+const getCredentials = async (user_id) => {
   try {
     let credentials = await knex
-      .select("password", "salt", "user_id")
+      .select("password", "salt", "email", "vector")
       .from("users")
-      .where("email", email)
+      .where("user_id", user_id)
       .first();
-
     return credentials || null;
   } catch (error) {
     console.error("Error retrieving credentials:", error);

@@ -93,11 +93,12 @@ async function login(req, res) {
       return res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
     }
 
-    const credentials = await getCredentials(email);
+    console.log("ID:", id);
+    const credentials = await getCredentials(id);
 
     if (!credentials) {
       return res.status(HTTPCodes.UNAUTHORIZED).send({
-        error: "There isn't a user with this email",
+        error: "There isn't a user with this id",
       });
     }
 
@@ -111,10 +112,8 @@ async function login(req, res) {
           error: "Password incorrect",
         });
       }
-    } else if (id && email) {
-      const convertedId = BigInt(id);
-      const userId = BigInt(credentials.user_id);
-      if (convertedId !== userId) {
+    } else if (id) {
+      if (!credentials) {
         return res.status(HTTPCodes.UNAUTHORIZED).send({
           error: "ID incorrect",
         });
