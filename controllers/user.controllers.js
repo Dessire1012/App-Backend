@@ -11,7 +11,7 @@ const {
 } = require("../services/user.services");
 
 async function register(req, res) {
-  console.log("Request body:", req.body);
+  console.log("Request body register:", req.body);
   const { email, password, name, user_id, vector } = req.body;
   try {
     const errorMessages = [];
@@ -46,9 +46,9 @@ async function register(req, res) {
         user.vector = vector;
       }
 
-      if (req.body.user_id) {
-        console.log("User ID:", req.body.user_id);
-        user.id = BigInt(req.body.user_id);
+      if (user_id) {
+        console.log("User ID:", user_id);
+        user.id = BigInt(user_id);
         console.log("ID:", user.id.toString());
       } else {
         user.id = parseInt((Math.random() * 1000000).toFixed(0), 10);
@@ -70,7 +70,7 @@ async function register(req, res) {
 }
 
 async function login(req, res) {
-  console.log("Request body:", req.body);
+  console.log("Request body login:", req.body);
   const { email, password, id, vector } = req.body;
   try {
     const errorMessages = [];
