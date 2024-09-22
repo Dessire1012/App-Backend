@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "@aws-sdk/client-bedrock-agent-runtime": "^3.654.0",
         "@aws-sdk/client-bedrock-runtime": "^3.654.0",
         "axios": "^1.7.7",
         "body-parser": "^1.20.2",
