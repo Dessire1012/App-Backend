@@ -71,7 +71,7 @@ async function register(req, res) {
 
 async function login(req, res) {
   console.log("Request body:", req.body);
-  const { email, password, id } = req.body;
+  const { email, password, id, vector } = req.body;
   try {
     const errorMessages = [];
 
