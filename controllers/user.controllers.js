@@ -42,6 +42,10 @@ async function register(req, res) {
         salt,
       };
 
+      if (vector) {
+        user.vector = vector;
+      }
+
       if (req.body.user_id) {
         console.log("User ID:", req.body.user_id);
         user.id = BigInt(req.body.user_id);
@@ -67,7 +71,7 @@ async function register(req, res) {
 
 async function login(req, res) {
   console.log("Request body:", req.body);
-  const { email, password, id, vector } = req.body;
+  const { email, password, id } = req.body;
   try {
     const errorMessages = [];
 
@@ -84,20 +88,11 @@ async function login(req, res) {
       return res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
     }
 
-    let credentials;
-    if (email && password) {
-      credentials = await getCredentials(email);
-    } else if (id) {
-      credentials = await getCredentialsById(id);
-    } else if (email && vector) {
-      credentials = await getCredentialsByVector(email, vector);
-    }
-
-    console.log("Credentials:", credentials);
+    const credentials = await getCredentials(email);
 
     if (!credentials) {
       return res.status(HTTPCodes.UNAUTHORIZED).send({
-        error: "User not found",
+        error: "There isn't a user with this email",
       });
     }
 
@@ -111,7 +106,7 @@ async function login(req, res) {
           error: "Password incorrect",
         });
       }
-    } else if (id) {
+    } else if (id && email) {
       const convertedId = BigInt(id);
       const userId = BigInt(credentials.user_id);
       if (convertedId !== userId) {
@@ -120,7 +115,8 @@ async function login(req, res) {
         });
       }
     } else if (email && vector) {
-      if (JSON.stringify(vector) !== JSON.stringify(credentials.vector)) {
+      const parsedVector = JSON.parse(vector);
+      if (JSON.stringify(parsedVector) !== JSON.stringify(credentials.vector)) {
         return res.status(HTTPCodes.UNAUTHORIZED).send({
           error: "Vector incorrect",
         });
@@ -128,13 +124,13 @@ async function login(req, res) {
     }
 
     const accessToken = jwt.sign(
-      { email: credentials.email },
+      { email },
       process.env.TOKENKEY || "AS4D5FF6G78NHCV7X6X5C",
       { expiresIn: "1d" }
     );
 
     const refreshToken = jwt.sign(
-      { email: credentials.email },
+      { email },
       process.env.TOKENKEY || "AS4D5FF6G78NHCV7X6X5C",
       { expiresIn: "1m" }
     );
