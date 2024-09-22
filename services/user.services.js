@@ -68,24 +68,20 @@ async function getAllUsers() {
   }
 }
 
-async function getCredentialsById(userId) {
+const getCredentialsById = async (userId) => {
   try {
-    console.log("Searching for user with ID:", userId);
-    const user = await knex("users").where({ user_id: userId }).first();
-    console.log(
-      "Query executed:",
-      knex("users").where({ user_id: userId }).toString()
-    );
-    console.log("User found:", user);
-    if (!user) {
-      throw new Error("User not found");
-    }
-    return user;
+    let credentials = await knex
+      .select("password", "salt", "user_id", "vector")
+      .from("users")
+      .where("user_id", userId)
+      .first();
+
+    return credentials || null;
   } catch (error) {
-    console.error("Error retrieving user by ID:", error);
+    console.error("Error retrieving credentials by ID:", error);
     throw error;
   }
-}
+};
 
 module.exports = {
   registerUser,
