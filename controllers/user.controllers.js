@@ -140,7 +140,10 @@ async function login(req, res) {
     } else if (email && vector) {
       const storedVector = JSON.parse(credentials.vector);
 
-      if (!areVectorsEqual(vector, storedVector)) {
+      const distance = calculateEuclideanDistance(vector, storedVector);
+      const threshold = 0.6;
+
+      if (distance > threshold) {
         return res.status(HTTPCodes.UNAUTHORIZED).send({
           error: "Vector incorrect",
         });
@@ -172,39 +175,15 @@ async function login(req, res) {
   }
 }
 
-function areVectorsEqual(vector1, vector2) {
-  const keys1 = Object.keys(vector1).filter((key) => {
-    const value = vector1[key];
-    return (
-      value !== null &&
-      value !== undefined &&
-      (typeof value !== "string" || value.trim() !== "")
-    );
-  });
-
-  const keys2 = Object.keys(vector2).filter((key) => {
-    const value = vector2[key];
-    return (
-      value !== null &&
-      value !== undefined &&
-      (typeof value !== "string" || value.trim() !== "")
-    );
-  });
-
-  if (keys1.length !== keys2.length) {
-    console.log("Lengths are different");
-    return false;
+function calculateEuclideanDistance(vector1, vector2) {
+  if (vector1.length !== vector2.length) {
+    throw new Error("Vectors must be of the same length");
   }
-
-  for (let key of keys1) {
-    if (parseFloat(vector1[key]) !== parseFloat(vector2[key])) {
-      console.log("Values at key", key, "are different");
-      console.log("Value 1:", vector1[key]);
-      console.log("Value 2:", vector2[key]);
-      return false;
-    }
+  let sum = 0;
+  for (let i = 0; i < vector1.length; i++) {
+    sum += Math.pow(vector1[i] - vector2[i], 2);
   }
-  return true;
+  return Math.sqrt(sum);
 }
 
 async function getUsers(req, res) {
