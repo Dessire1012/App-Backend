@@ -118,8 +118,7 @@ async function login(req, res) {
         });
       }
     } else if (email && vector) {
-      // Assuming vector validation logic here
-      if (!isValidVector(vector, credentials.vector)) {
+      if (JSON.stringify(vector) !== JSON.stringify(credentials.vector)) {
         return res.status(HTTPCodes.UNAUTHORIZED).send({
           error: "Vector incorrect",
         });
