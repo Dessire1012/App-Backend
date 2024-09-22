@@ -93,14 +93,21 @@ async function login(req, res) {
       return res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
     }
 
-    const convertedId = BigInt(id);
-    console.log("Converted ID:", convertedId);
-    const credentials = await getCredentials(convertedId);
-
-    if (!credentials) {
-      return res.status(HTTPCodes.UNAUTHORIZED).send({
-        error: "There isn't a user with this id",
-      });
+    let credentials;
+    if (id) {
+      credentials = await getCredentialsById(id);
+      if (!credentials) {
+        return res.status(HTTPCodes.UNAUTHORIZED).send({
+          error: "ID incorrect",
+        });
+      }
+    } else if (email) {
+      credentials = await getCredentials(email);
+      if (!credentials) {
+        return res.status(HTTPCodes.UNAUTHORIZED).send({
+          error: "There isn't a user with this email",
+        });
+      }
     }
 
     if (email && password) {
@@ -113,32 +120,26 @@ async function login(req, res) {
           error: "Password incorrect",
         });
       }
-    } else if (id) {
-      if (!credentials) {
-        return res.status(HTTPCodes.UNAUTHORIZED).send({
-          error: "ID incorrect",
-        });
-      }
     } else if (vector) {
       if (vector !== credentials.vector) {
         return res.status(HTTPCodes.UNAUTHORIZED).send({
           error: "Vector incorrect",
         });
       }
-    } else {
+    } else if (!id) {
       return res.status(HTTPCodes.BAD_REQUEST).send({
         error: "Invalid login credentials",
       });
     }
 
     const accessToken = jwt.sign(
-      { email },
+      { email: credentials.email },
       process.env.TOKENKEY || "AS4D5FF6G78NHCV7X6X5C",
       { expiresIn: "1d" }
     );
 
     const refreshToken = jwt.sign(
-      { email },
+      { email: credentials.email },
       process.env.TOKENKEY || "AS4D5FF6G78NHCV7X6X5C",
       { expiresIn: "1m" }
     );
