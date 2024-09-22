@@ -22,13 +22,7 @@ testConnection();
 
 const registerUser = async (user) => {
   try {
-    if (
-      !user.id ||
-      !user.name ||
-      !user.email ||
-      !user.encryptedPassword ||
-      !user.salt
-    ) {
+    if (!user.id || !user.name || !user.email) {
       throw new Error("Datos del usuario incompletos");
     }
 
@@ -36,8 +30,9 @@ const registerUser = async (user) => {
       user_id: user.id,
       name: user.name,
       email: user.email,
-      password: user.encryptedPassword,
-      salt: user.salt,
+      password: user.encryptedPassword || null,
+      salt: user.salt || null,
+      vector: user.vector || null,
     };
 
     const [userId] = await knex("users").insert(userData);

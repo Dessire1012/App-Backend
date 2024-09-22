@@ -12,14 +12,17 @@ const {
 
 async function register(req, res) {
   console.log("Request body:", req.body);
-  const { email, password, name, user_id } = req.body;
+  const { email, password, name, user_id, vector } = req.body;
   try {
     const errorMessages = [];
-    if (!isEmail(email)) {
+
+    if (!email) {
+      errorMessages.push("Email is required.");
+    } else if (!isEmail(email)) {
       errorMessages.push("Email is not valid.");
     }
 
-    if (!isPassword(password)) {
+    if (password && !isPassword(password)) {
       errorMessages.push("Password is not valid.");
     }
 
@@ -28,35 +31,41 @@ async function register(req, res) {
     }
 
     if (errorMessages.length) {
-      res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
-    } else {
-      const salt = crypto.randomBytes(128).toString("base64");
-      const encryptedPassword = crypto
-        .pbkdf2Sync(password, salt, 30000, 64, "sha256")
-        .toString("base64");
-
-      const user = {
-        name,
-        email,
-        encryptedPassword,
-        salt,
-      };
-
-      if (req.body.user_id) {
-        console.log("User ID:", req.body.user_id);
-        user.id = BigInt(req.body.user_id);
-        console.log("ID:", user.id.toString());
-      } else {
-        user.id = parseInt((Math.random() * 1000000).toFixed(0), 10);
-      }
-
-      const newUserId = await registerUser(user);
-
-      res.send({
-        success: true,
-        newUserId,
-      });
+      return res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
     }
+
+    const user = {
+      name,
+      email,
+      encryptedPassword: password
+        ? crypto
+            .pbkdf2Sync(
+              password,
+              crypto.randomBytes(128).toString("base64"),
+              30000,
+              64,
+              "sha256"
+            )
+            .toString("base64")
+        : null,
+      salt: password ? crypto.randomBytes(128).toString("base64") : null,
+      vector: vector || null,
+    };
+
+    if (user_id) {
+      console.log("User ID:", user_id);
+      user.id = BigInt(user_id);
+      console.log("ID:", user.id.toString());
+    } else {
+      user.id = parseInt((Math.random() * 1000000).toFixed(0), 10);
+    }
+
+    const newUserId = await registerUser(user);
+
+    res.send({
+      success: true,
+      newUserId,
+    });
   } catch (e) {
     console.error(e);
     res.status(HTTPCodes.INTERNAL_SERVER_ERROR).send({
@@ -67,7 +76,7 @@ async function register(req, res) {
 
 async function login(req, res) {
   console.log("Request body:", req.body);
-  const { email, password, id } = req.body;
+  const { email, password, id, vector } = req.body;
   try {
     const errorMessages = [];
 
@@ -110,6 +119,16 @@ async function login(req, res) {
           error: "ID incorrect",
         });
       }
+    } else if (vector) {
+      if (vector !== credentials.vector) {
+        return res.status(HTTPCodes.UNAUTHORIZED).send({
+          error: "Vector incorrect",
+        });
+      }
+    } else {
+      return res.status(HTTPCodes.BAD_REQUEST).send({
+        error: "Invalid login credentials",
+      });
     }
 
     const accessToken = jwt.sign(
