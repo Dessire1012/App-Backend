@@ -138,8 +138,9 @@ async function login(req, res) {
         });
       }
     } else if (email && vector) {
-      const parsedVector = JSON.parse(vector);
-      if (JSON.stringify(parsedVector) !== JSON.stringify(credentials.vector)) {
+      const storedVector = JSON.parse(credentials.vector);
+
+      if (!areVectorsEqual(vector, storedVector)) {
         return res.status(HTTPCodes.UNAUTHORIZED).send({
           error: "Vector incorrect",
         });
@@ -169,6 +170,41 @@ async function login(req, res) {
       error: "There was an error processing your request",
     });
   }
+}
+
+function areVectorsEqual(vector1, vector2) {
+  const keys1 = Object.keys(vector1).filter((key) => {
+    const value = vector1[key];
+    return (
+      value !== null &&
+      value !== undefined &&
+      (typeof value !== "string" || value.trim() !== "")
+    );
+  });
+
+  const keys2 = Object.keys(vector2).filter((key) => {
+    const value = vector2[key];
+    return (
+      value !== null &&
+      value !== undefined &&
+      (typeof value !== "string" || value.trim() !== "")
+    );
+  });
+
+  if (keys1.length !== keys2.length) {
+    console.log("Lengths are different");
+    return false;
+  }
+
+  for (let key of keys1) {
+    if (parseFloat(vector1[key]) !== parseFloat(vector2[key])) {
+      console.log("Values at key", key, "are different");
+      console.log("Value 1:", vector1[key]);
+      console.log("Value 2:", vector2[key]);
+      return false;
+    }
+  }
+  return true;
 }
 
 async function getUsers(req, res) {
