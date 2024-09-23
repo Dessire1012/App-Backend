@@ -14,7 +14,7 @@ const {
 } = require("../services/user.services");
 
 async function register(req, res) {
-  console.log("Request body register:", req.body);
+  //console.log("Request body register:", req.body);
   const { email, password, name, user_id, vector } = req.body;
   try {
     const errorMessages = [];
@@ -74,9 +74,9 @@ async function register(req, res) {
     }
 
     if (user_id) {
-      console.log("User ID:", user_id);
+      //console.log("User ID:", user_id);
       user.id = BigInt(user_id);
-      console.log("ID:", user.id.toString());
+      //console.log("ID:", user.id.toString());
     } else {
       user.id = parseInt((Math.random() * 1000000).toFixed(0), 10);
     }
@@ -88,7 +88,7 @@ async function register(req, res) {
       newUserId,
     });
   } catch (e) {
-    console.error(e);
+    //console.error(e);
     res.status(HTTPCodes.INTERNAL_SERVER_ERROR).send({
       error: "There is already a user with this email",
     });
@@ -96,7 +96,7 @@ async function register(req, res) {
 }
 
 async function login(req, res) {
-  console.log("Request body login:", req.body);
+  //console.log("Request body login:", req.body);
   const { email, password, id, vector } = req.body;
   try {
     const errorMessages = [];
@@ -163,7 +163,7 @@ async function login(req, res) {
       vector: storedVector,
     });
   } catch (e) {
-    console.error("Login error:", e);
+    //console.error("Login error:", e);
     res.status(HTTPCodes.INTERNAL_SERVER_ERROR).send({
       error: "There was an error processing your request",
     });
@@ -183,7 +183,7 @@ async function getUsers(req, res) {
 
 async function getUser(req, res) {
   const { id } = req.query;
-  console.log("Received ID:", id);
+  //console.log("Received ID:", id);
   try {
     const user = await getCredentialsById(id);
     if (!user) {
@@ -191,7 +191,7 @@ async function getUser(req, res) {
     }
     res.send(user);
   } catch (e) {
-    console.error("Error fetching user:", e);
+    //console.error("Error fetching user:", e);
     res.status(500).send({
       error: "There was an error processing your request",
     });
@@ -204,7 +204,7 @@ async function editUserName(req, res) {
     await updateUserName(id, name);
     res.send({ success: true, id, newName: name});
   } catch (e) {
-    console.error("Error updating user name:", e);
+    //console.error("Error updating user name:", e);
     res.status(500).send({
       error: "There was an error processing your request",
     });
@@ -236,11 +236,11 @@ async function editUserPassword(req, res) {
       user.salt = salt;
     }
 
-    console.log("User:", user);
+    //console.log("User:", user);
     await updateUserPassword(user);
     res.send({ success: true, id });
   } catch (e) {
-    console.error("Error updating user password:", e);
+    //console.error("Error updating user password:", e);
     res.status(500).send({
       error: "There was an error processing your request",
     });
@@ -273,7 +273,7 @@ async function editUserEmail(req, res) {
     await updateUserEmail(id, email);
     res.send({ success: true, id, newEmail: email });
   } catch (e) {
-    console.error("Error updating user email:", e);
+    //console.error("Error updating user email:", e);
     res.status(500).send({
       error: "There was an error processing your request",
     });

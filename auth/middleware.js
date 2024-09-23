@@ -9,7 +9,7 @@ function authenticateToken(req, res, next) {
 
   jwt.verify(token, "AS4D5FF6G78NHCV7X6X5C", function (e, user) {
     if (e) {
-      console.log(e);
+      //console.log(e);
       return res.status(403).send("invalid token");
     }
     else {

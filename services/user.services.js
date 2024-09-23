@@ -9,16 +9,16 @@ const knex = require("knex")({
   },
 });
 
-async function testConnection() {
-  try {
-    await knex.raw("SELECT 1+1 AS result");
-    console.log("Conexión exitosa");
-  } catch (error) {
-    console.error("Error en la conexión:", error);
-  }
-}
+// async function testConnection() {
+//   try {
+//     await knex.raw("SELECT 1+1 AS result");
+//     console.log("Conexión exitosa");
+//   } catch (error) {
+//     console.error("Error en la conexión:", error);
+//   }
+// }
 
-testConnection();
+// testConnection();
 
 const registerUser = async (user) => {
   try {
@@ -38,7 +38,7 @@ const registerUser = async (user) => {
     const [userId] = await knex("users").insert(userData);
     return userId;
   } catch (error) {
-    console.error("Error registering user:", error.message, error.stack);
+    //console.error("Error registering user:", error.message, error.stack);
     throw error;
   }
 };
@@ -53,7 +53,7 @@ const getCredentials = async (email) => {
 
     return credentials || null;
   } catch (error) {
-    console.error("Error retrieving credentials:", error);
+    //console.error("Error retrieving credentials:", error);
     throw error;
   }
 };
@@ -63,26 +63,26 @@ async function getAllUsers() {
     const users = await knex("users").select("*");
     return users;
   } catch (error) {
-    console.error("Error retrieving users:", error);
+    //console.error("Error retrieving users:", error);
     throw error;
   }
 }
 
 async function getCredentialsById(userId) {
   try {
-    console.log("Searching for the user with ID:", userId);
+    //console.log("Searching for the user with ID:", userId);
     const user = await knex("users").where({ user_id: userId }).first();
-    console.log(
-      "Query executed:",
-      knex("users").where({ user_id: userId }).toString()
-    );
-    console.log("User found:", user);
+    // console.log(
+    //   "Query executed:",
+    //   knex("users").where({ user_id: userId }).toString()
+    // );
+    //console.log("User found:", user);
     if (!user) {
       throw new Error("User not found");
     }
     return user;
   } catch (error) {
-    console.error("Error retrieving user by ID:", error);
+    //console.error("Error retrieving user by ID:", error);
     throw error;
   }
 }
@@ -91,7 +91,7 @@ async function updateUserName(userId, name) {
   try {
     await knex("users").where({ user_id: userId }).update({ name });
   } catch (error) {
-    console.error("Error updating user name:", error);
+    //console.error("Error updating user name:", error);
     throw error;
   }
 }
@@ -101,7 +101,7 @@ async function updateUserPassword(user) {
     const { id, encryptedPassword, salt } = user;
     await knex("users").where({ user_id: id }).update({ password: encryptedPassword, salt });
   } catch (error) {
-    console.error("Error updating user password:", error);
+    //console.error("Error updating user password:", error);
     throw error;
   }
 }
@@ -115,7 +115,7 @@ async function updateUserEmail(userId, email) {
 
     await knex("users").where({ user_id: userId }).update({ email });
   } catch (error) {
-    console.error("Error updating user email:", error);
+    //console.error("Error updating user email:", error);
     throw error;
   }
 }

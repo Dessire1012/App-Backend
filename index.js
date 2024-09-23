@@ -76,7 +76,7 @@ app.post("/aws-function", async (req, res) => {
     );
     res.json(response.data);
   } catch (error) {
-    console.error("Error al acceder a la función de AWS:", error);
+    //console.error("Error al acceder a la función de AWS:", error);
     res.status(500).json({ error: "Error al acceder a la función de AWS" });
   }
 });
@@ -85,5 +85,5 @@ app.use(express.json());
 
 // Start the server
 app.listen(8080, () => {
-  console.log("Server started on http://localhost:8080");
+  //console.log("Server started on http://localhost:8080");
 });

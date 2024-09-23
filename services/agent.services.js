@@ -37,14 +37,14 @@ const invokeAgent = async (agentId, agentAliasId, sessionId, prompt) => {
                 // Procesa el contenido decodificado aquí
                 return { outputText: decodedContent }; // o extrae la información que necesites
             } catch (jsonError) {
-                console.error('Error parsing JSON:', jsonError);
+                //console.error('Error parsing JSON:', jsonError);
                 throw jsonError;
             }
         } else {
             throw new Error('No se encontró JSON en el outputText');
         }
     } catch (error) {
-        console.error('Error invoking agent:', error);
+        //console.error('Error invoking agent:', error);
         throw error;
     }
 };
