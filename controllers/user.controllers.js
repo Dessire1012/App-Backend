@@ -201,8 +201,8 @@ async function getUser(req, res) {
 async function editUserName(req, res) {
   const { id, name } = req.body;
   try {
-    const newName = await updateUserName(id, name);
-    res.send({ success: true, id, oldName: name, newName: newName });
+    await updateUserName(id, name);
+    res.send({ success: true, id, newName: name});
   } catch (e) {
     console.error("Error updating user name:", e);
     res.status(500).send({
@@ -269,8 +269,8 @@ async function editUserEmail(req, res) {
       }
     }
 
-    const newEmail = await updateUserEmail(id, email);
-    res.send({ success: true, id, oldEmail: email, newEmail });
+    await updateUserEmail(id, email);
+    res.send({ success: true, id, newEmail: email });
   } catch (e) {
     console.error("Error updating user email:", e);
     res.status(500).send({

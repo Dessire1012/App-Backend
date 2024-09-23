@@ -98,8 +98,8 @@ async function updateUserName(userId, name) {
 
 async function upadateUserPassword(user) {
   try {
-    const { id, password, salt } = user;
-    await knex("users").where({ user_id: id }).update({ password, salt });
+    const { id, encryptedPassword, salt } = user;
+    await knex("users").where({ user_id: id }).update({ password: encryptedPassword, salt });
   } catch (error) {
     console.error("Error updating user password:", error);
     throw error;
