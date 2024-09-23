@@ -30,10 +30,16 @@ const invokeAgent = async (agentId, agentAliasId, sessionId, prompt) => {
         // Procesar outputText
         const jsonPart = outputText.match(/{.*}/s); // Busca el primer JSON en el string
         if (jsonPart) {
-            const jsonData = JSON.parse(jsonPart[0]); // Convertir a objeto JSON
-            // Extraer la respuesta del bot
-            const outputText = jsonData.attribution.citations[0].generatedResponsePart.textResponsePart.text;
-            return { outputText };
+            try {
+                const jsonData = JSON.parse(jsonPart[0]);
+                const bytesContent = jsonData.bytes;
+                const decodedContent = Buffer.from(bytesContent, 'base64').toString('utf-8'); // Decodificar contenido
+                // Procesa el contenido decodificado aquí
+                return { outputText: decodedContent }; // o extrae la información que necesites
+            } catch (jsonError) {
+                console.error('Error parsing JSON:', jsonError);
+                throw jsonError;
+            }
         } else {
             throw new Error('No se encontró JSON en el outputText');
         }
