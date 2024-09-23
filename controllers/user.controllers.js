@@ -236,8 +236,9 @@ async function editUserPassword(req, res) {
       user.salt = salt;
     }
 
+    console.log("User:", user);
     await updateUserPassword(user);
-    res.send({ success: true, id, encryptedPassword, salt });
+    res.send({ success: true, id });
   } catch (e) {
     console.error("Error updating user password:", e);
     res.status(500).send({
