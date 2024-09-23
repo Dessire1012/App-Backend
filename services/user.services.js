@@ -87,9 +87,44 @@ async function getCredentialsById(userId) {
   }
 }
 
+async function updateUserName(userId, name) {
+  try {
+    await knex("users").where({ user_id: userId }).update({ name });
+  } catch (error) {
+    console.error("Error updating user name:", error);
+    throw error;
+  }
+}
+
+async function upadateUserPassword(userId, password) {
+  try {
+    await knex("users").where({ user_id: userId }).update({ password });
+  } catch (error) {
+    console.error("Error updating user password:", error);
+    throw error;
+  }
+}
+
+async function updateUserEmail(userId, email) {
+  try {
+    const emailExists = await knex("users").where({ email }).first();
+    if (emailExists) {
+      throw new Error("Email already in use");
+    }
+
+    await knex("users").where({ user_id: userId }).update({ email });
+  } catch (error) {
+    console.error("Error updating user email:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   registerUser,
   getCredentials,
   getAllUsers,
   getCredentialsById,
+  updateUserName,
+  upadateUserPassword,
+  updateUserEmail,
 };

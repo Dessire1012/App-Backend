@@ -8,6 +8,9 @@ const {
   getCredentials,
   getAllUsers,
   getCredentialsById,
+  updateUserName,
+  upadateUserPassword,
+  updateUserEmail,
 } = require("../services/user.services");
 
 async function register(req, res) {
@@ -195,9 +198,51 @@ async function getUser(req, res) {
   }
 }
 
+async function editUserName(req, res) {
+  const { id, name } = req.body;
+  try {
+    await updateUserName(id, name);
+    res.send({ success: true });
+  } catch (e) {
+    console.error("Error updating user name:", e);
+    res.status(500).send({
+      error: "There was an error processing your request",
+    });
+  }
+}
+
+async function editUserPassword(req, res) {
+  const { id, password } = req.body;
+  try {
+    await upadateUserPassword(id, password);
+    res.send({ success: true });
+  } catch (e) {
+    console.error("Error updating user password:", e);
+    res.status(500).send({
+      error: "There was an error processing your request",
+    });
+  }
+}
+
+async function editUserEmail(req, res) {
+  const { id, email } = req.body;
+  try {
+    await updateUserEmail(id, email);
+    res.send({ success: true });
+  } catch (e) {
+    console.error("Error updating user email:", e);
+    res.status(500).send({
+      error: "There was an error processing your request",
+    });
+  }
+}
+
 module.exports = {
   register,
   login,
   getUsers,
   getUser,
+  editUserName,
+  editUserPassword,
+  editUserEmail,
 };
