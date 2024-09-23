@@ -96,7 +96,7 @@ async function updateUserName(userId, name) {
   }
 }
 
-async function upadateUserPassword(user) {
+async function updateUserPassword(user) {
   try {
     const { id, encryptedPassword, salt } = user;
     await knex("users").where({ user_id: id }).update({ password: encryptedPassword, salt });
@@ -126,6 +126,6 @@ module.exports = {
   getAllUsers,
   getCredentialsById,
   updateUserName,
-  upadateUserPassword,
+  updateUserPassword,
   updateUserEmail,
 };
