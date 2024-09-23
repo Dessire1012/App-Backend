@@ -9,7 +9,7 @@ const {
   getAllUsers,
   getCredentialsById,
   updateUserName,
-  upadateUserPassword,
+  updateUserPassword,
   updateUserEmail,
 } = require("../services/user.services");
 
@@ -201,8 +201,8 @@ async function getUser(req, res) {
 async function editUserName(req, res) {
   const { id, name } = req.body;
   try {
-    await updateUserName(id, name);
-    res.send({ success: true });
+    const newName = await updateUserName(id, name);
+    res.send({ success: true, id, oldName: name, newName: newName });
   } catch (e) {
     console.error("Error updating user name:", e);
     res.status(500).send({
@@ -214,8 +214,30 @@ async function editUserName(req, res) {
 async function editUserPassword(req, res) {
   const { id, password } = req.body;
   try {
-    await upadateUserPassword(id, password);
-    res.send({ success: true });
+    const errorMessages = [];
+
+    if (!isPassword(password)) {
+      errorMessages.push("Password is not valid.");
+    }
+
+    if (errorMessages.length) {
+      return res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
+    }
+
+    const user = {};
+    user.id = id;
+
+    if (password) {
+      const salt = crypto.randomBytes(128).toString("base64");
+      const encryptedPassword = crypto
+        .pbkdf2Sync(password, salt, 30000, 64, "sha256")
+        .toString("base64");
+      user.encryptedPassword = encryptedPassword;
+      user.salt = salt;
+    }
+
+    await updateUserPassword(user);
+    res.send({ success: true, id, encryptedPassword, salt });
   } catch (e) {
     console.error("Error updating user password:", e);
     res.status(500).send({
@@ -227,8 +249,28 @@ async function editUserPassword(req, res) {
 async function editUserEmail(req, res) {
   const { id, email } = req.body;
   try {
-    await updateUserEmail(id, email);
-    res.send({ success: true });
+    const errorMessages = [];
+
+    if (email && !isEmail(email)) {
+      errorMessages.push("Email is not valid.");
+    }
+
+    if (errorMessages.length) {
+      return res.status(HTTPCodes.BAD_REQUEST).send({ error: errorMessages });
+    }
+
+    if (email) {
+      const existingUser = await getCredentials(email);
+      if (existingUser) {
+        res
+          .status(HTTPCodes.BAD_REQUEST)
+          .send({ error: "Email already in use." });
+        return;
+      }
+    }
+
+    const newEmail = await updateUserEmail(id, email);
+    res.send({ success: true, id, oldEmail: email, newEmail });
   } catch (e) {
     console.error("Error updating user email:", e);
     res.status(500).send({
